@@ -1,0 +1,49 @@
+---
+title: "Final Project"
+author: "Mostafa Shad"
+date: "January 30, 2016"
+output: html_document
+---
+
+The following R commands are used to load the csv training data and create a training set and teting set:
+
+
+```{r qplot, fig.width=4, fig.height=3, message=FALSE}
+#Loading libraries and input data
+library(ggplot2)
+library(caret)
+allData = read.csv("pml-training.csv") 
+
+inTrain = createDataPartition(y=allData$classe, p=0.80, list=FALSE)
+
+training = allData[inTrain,]
+testing = allData[-inTrain,]
+```
+
+The input data should be pre processed in order to discard the missing and NA values with the following R code:
+
+```{r}
+preObj = preProcess(training, method="knnImpute")
+```
+
+To fit a model to these data, the following R code is used:
+```{r}
+modFit = train(classe ~ .,method = "rf",data = training)
+```
+Then, this model was evaluated by running it over the testing data and observe the confusion matrix:
+
+```{r}
+prediction = predict(modFit , newdata=testing)
+prediction
+
+confusionMatrix(prediction, testing$classe)
+```
+
+Since the results are acceptable, this model was executed over the main test set to see the output:
+
+```{r}
+mainTest  = read.csv("pml-testing.csv")
+finalResult = predict(modFit , newdata=mainTest  )
+
+finalResult
+```
